@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container p-3">
+        <form class="form-inline" id="createForm">
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <input type="number" class="form-control" id="amount">
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input type="text" class="form-control" id="description">
+            </div>
+            <div class="form-group">
+                <label for="category">Category:</label>
+                <select class="form-control" id="category">
+                    <option>Mobile</option>
+                    <option>Fan</option>
+                    <option>Computer</option>
+                    <option>Chair</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-default">Submit</button>
+        </form>
+        <h4>list of expenses</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Firstname</th>
+                    <th>Lastname</th>
+                    <th>Email</th>
+                    <th>edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody id="tableList">
+                <tr>
+                    <td>John</td>
+                    <td>Doe</td>
+                    <td>john@example.com</td>
+                    <td>
+                        <button href="#" class="btn btn-primary btn-sm">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </button>
+                    </td>
+                    <td>
+                        <button href="#" class="btn btn-danger btn-sm">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+
+
+    <script>
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const data = axios.get("http://localhost:3000/read/")
+                .then((response) => {
+                    for (var i = 0; i < response.data.length; i++) {
+                        showOnDisplay(response.data[i]);
+
+                    }
+                })
+        })
+        // nnnnnnnnnnnnnnnnnn
+        function showOnDisplay(obj) {
+            const tableData = document.getElementById('tableList');
+            // create  edit button button 
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-primary btn-sm edit';
+            const span = document.createElement('span');
+            span.className = 'glyphicon glyphicon-pencil'
+            editBtn.appendChild(span)
+            // create delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-danger btn-sm delete';
+            const spans = document.createElement('span');
+            spans.className = 'glyphicon glyphicon-trash'
+            deleteBtn.appendChild(spans)
+
+            console.log(tableData);
+            // create row 
+            const row = document.createElement("tr");
+            // create cells 
+            const cell1 = document.createElement("td");
+            const cell2 = document.createElement("td");
+            const cell3 = document.createElement("td");
+            const cell4 = document.createElement("td");
+            const cell5 = document.createElement("td");
+            // attach data to cells 
+            const cellText1 = document.createTextNode(`${obj.amount}`);
+            const cellText2 = document.createTextNode(`${obj.description}`);
+            const cellText3 = document.createTextNode(`${obj.category}`);
+            cell1.appendChild(cellText1);
+            cell2.appendChild(cellText2);
+            cell3.appendChild(cellText3);
+            cell4.appendChild(editBtn);
+            cell5.appendChild(deleteBtn);
+            // attach cells to rows 
+            row.appendChild(cell1);
+            row.appendChild(cell2);
+            row.appendChild(cell3);
+            row.appendChild(cell4);
+            row.appendChild(cell5);
+            console.log(row);
+            tableData.appendChild(row);
+
+
+            deleteBtn.onclick = () => {
+                const id = obj.id;
+                console.log(id);
+                const response = axios.delete(`http://localhost:3000/delete/${id}`)
+                    .then((response) => {
+                        // showOnDisplay(response.data)
+                        console.log(response);
+
+                    })
+                    .catch((err) => console.log(err))
+
+                tableData.removeChild(row);
+            }
+
+            // editBtn.onclick = () => {
+            //     const id = obj._id;
+            //     console.log(id);
+            //     document.getElementById('name').value = obj.name;
+            //     document.getElementById('email').value = obj.email;
+            //     document.getElementById('phone').value = obj.phone;
+            //     axios.delete(`http://localhost:3000/delete/${id}`)
+            //         .then((response) => {
+            //             console.log(response);
+            //         })
+            //         .catch((err) => console.log(err))
+            //     usersdata.removeChild(li);
+
+            // }
+
+
+        }
+
+        //   nnnnnnnnnnnnnnnn
+        // async function readUser() {
+        //     const userId = document.getElementById('userId').value;
+        //     try {
+        //         const response = await axios.get(`http://localhost:3000/read/${userId}`);
+        //         document.getElementById('readResult').innerHTML = JSON.stringify(response.data);
+        //         console.log(response.data);
+        //     } catch (error) {
+        //         document.getElementById('readResult').innerHTML = 'Error fetching user';
+        //     }
+        // }
+
+        // async function deleteUser() {
+        //     const userId = document.getElementById('deleteId').value;
+        //     try {
+        //         const response = await axios.delete(`http://localhost:3000/delete/${userId}`);
+        //         alert(response.data);
+        //     } catch (error) {
+        //         alert('Error deleting user');
+        //     }
+        // }
+
+        document.getElementById('createForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            // get value for the form 
+            const amount = document.getElementById('amount').value;
+            const description = document.getElementById('description').value;
+            const category = document.getElementById('category').value;
+            try {
+                const response = await axios.post('http://localhost:3000/create', { amount, description, category });
+                alert(response.data);
+            } catch (error) {
+                alert('Error creating user');
+            }
+        });
+
+        // document.getElementById('updateForm').addEventListener('submit', async function (event) {
+        //     event.preventDefault();
+        //     const userId = document.getElementById('updateId').value;
+        //     const userName = document.getElementById('updateName').value;
+        //     const phoneNo = document.getElementById('updatePhone').value;
+        //     const email = document.getElementById('updateEmail').value;
+        //     try {
+        //         const response = await axios.put(`http://localhost:3000/update/${userId}`, { userName, phoneNo, email });
+        //         alert(response.data);
+        //     } catch (error) {
+        //         alert('Error updating user');
+        //     }
+        // });
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</body>
+
+</html>
